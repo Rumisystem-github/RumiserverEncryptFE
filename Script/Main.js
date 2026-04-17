@@ -1,24 +1,5 @@
 let token = null;
 let self_user = null;
-let mel = {
-	loading: document.getElementById("LOADING"),
-	ok: document.getElementById("OK"),
-	setup: {
-		parent: document.getElementById("SETUP"),
-		first: {
-			parent: document.getElementById("SETUP_FIRST"),
-			input: document.getElementById("SETUP_INPUT"),
-			next: document.getElementById("SETUP_NEXT")
-		},
-		check: {
-			parent: document.getElementById("SETUP_CHECK"),
-			passcode: document.getElementById("SETUP_PASSCODE")
-		},
-		loading: {
-			parent: document.getElementById("SETUP_LOADING")
-		}
-	}
-};
 
 window.addEventListener("load", async function() {
 	token = ReadCOOKIE().SESSION;
@@ -33,6 +14,10 @@ window.addEventListener("load", async function() {
 		return;
 	}
 
+	await __start();
+});
+
+async function check() {
 	const ajax = await fetch("/api/Check", {
 		method: "GET",
 		headers: {
@@ -41,29 +26,7 @@ window.addEventListener("load", async function() {
 		}
 	});
 	const result = await ajax.json();
-	if (result.IS_SETUPED) {
-		mel.ok.style.display = "block";
-	} else {
-		mel.setup.parent.style.display = "block";
-	}
-
-	mel.loading.remove();
-});
-
-async function setup(passcode) {
-	const ajax = await fetch("/api/Setup", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			"Accept": "application/json",
-			"TOKEN": token
-		},
-		body: JSON.stringify({
-			"PASSCODE": passcode
-		})
-	});
-	const result = await ajax.json();
-	console.log(result);
+	return result.IS_SETUPED;
 }
 
 async function passcode_check(passcode) {
