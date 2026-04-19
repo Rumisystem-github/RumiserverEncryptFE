@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>AES</TITLE>
+	</HEAD>
+	<BODY>
+		<INPUT ID="USER_INTERNAL_ID" TYPE="TEXT" PLACEHOLDER="ユーザー内部ID" VALUE="1">
+		<INPUT ID="PASSCODE" TYPE="TEXT" MAXLENGTH="6" PLACEHOLDER="パスコード(6桁)">
+		<DIV ID="KEY"></DIV>
+		<BUTTON onclick="gen_key()">鍵を生成する</BUTTON>
+		<HR>
+		<TEXTAREA ID="PLAIN">任意の文字列</TEXTAREA><BR>
+		<BUTTON onclick="encrypt()">暗号化</BUTTON><BR>
+		<INPUT ID="ENCRYPTED" PLACEHOLDER="暗号化データ"><BR>
+		<INPUT ID="IV" PLACEHOLDER="初期化ベクトル"><BR>
+		<INPUT ID="TAG" PLACEHOLDER="タグ"><BR>
+		<BUTTON onclick="decrypt()">復号化</BUTTON><BR>
+		<TEXTAREA ID="DECRYPTED" READONLY></TEXTAREA><BR>
+	</BODY>
+	<SCRIPT SRC="https://cdn.jsdelivr.net/npm/argon2-browser/dist/argon2-bundled.min.js"></SCRIPT>
+	<SCRIPT>
+		let key = null;
+
+		async function gen_key() {
+			const salt = document.getElementById("USER_INTERNAL_ID").value.padEnd(20, "X");
+			const passcode = document.getElementById("PASSCODE").value;
+
+			//ハッシュ生成
+			const hash_result = await argon2.hash({
+				pass: passcode,						//パスコード
+				salt: salt,							//お塩
+				time: 3,							//反復階数
+				mem: 64 * 1024,						//64MB
+				parallelism: 1,						//並列度
+				hashLen: 32,						//長さ(AES-256用32バイト)
+				type: argon2.ArgonType.Argon2id		//GPU対策 + 再度チャンネル対策
+			});
+
+			//ハッシュから鍵を生成
+			const aes_key = await crypto.subtle.importKey(
+				"raw",
+				hash_result.hash,
+				{
+					name: "AES-GCM",
+					length: 256
+				},
+				false,
+				[
+					"encrypt",
+					"decrypt"
+				]
+			);
+
+			document.getElementById("KEY").innerText = `鍵を生成しましたわよ→${hash_result.hashHex}`;
+			key = aes_key;
+		}
+
+		async function encrypt() {
+			if (!key) {
+				document.getElementById("ENCRYPTED").value = "鍵がないですわよ？！";
+				return;
+			}
+
+			const iv = crypto.getRandomValues(new Uint8Array(12));
+			const encrypted_and_tag = new Uint8Array(await crypto.subtle.encrypt(
+				{
+					name: "AES-GCM",
+					iv: iv
+				},
+				key,
+				new TextEncoder().encode(document.getElementById("PLAIN").value)
+			));
+
+			const encrypted = encrypted_and_tag.slice(0, -16);
+			const tag = encrypted_and_tag.slice(-16);
+
+			document.getElementById("ENCRYPTED").value = btoa(String.fromCharCode(...encrypted));
+			document.getElementById("IV").value = btoa(String.fromCharCode(...iv));
+			document.getElementById("TAG").value = btoa(String.fromCharCode(...tag));
+		}
+
+		async function decrypt() {
+			if (!key) {
+				document.getElementById("DECRYPTED").value = "鍵がないですわよ？！";
+				return;
+			}
+
+			const encrypted = Uint8Array.from(atob(document.getElementById("ENCRYPTED").value), (c) => c.charCodeAt(0));
+			const iv = Uint8Array.from(atob(document.getElementById("IV").value), (c) => c.charCodeAt(0));
+			const tag = Uint8Array.from(atob(document.getElementById("TAG").value), (c) => c.charCodeAt(0));
+
+			const encrypted_and_tag = new Uint8Array(encrypted.byteLength + tag.byteLength);
+			encrypted_and_tag.set(encrypted, 0);
+			encrypted_and_tag.set(tag, encrypted.byteLength);
+
+			const decrypted = await crypto.subtle.decrypt(
+				{
+					name: "AES-GCM",
+					iv: iv
+				},
+				key,
+				encrypted_and_tag
+			);
+			document.getElementById("DECRYPTED").value = new TextDecoder().decode(decrypted);
+		}
+	</SCRIPT>
+</HTML>
