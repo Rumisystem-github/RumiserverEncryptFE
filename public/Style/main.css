@@ -4,6 +4,10 @@ body{
 	height: 100vh;
 }
 
+.SETUP{
+	text-align: center;
+}
+
 input{
 	font-size: 50px;
 	width: calc(1em * 6);

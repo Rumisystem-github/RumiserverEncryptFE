@@ -10,18 +10,7 @@
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
 
-
-		<STYLE>
-			body{
-				background: var(--RSV_DEFAULT_BG);
-				width: 100vw;
-				height: 100vh;
-			}
-
-			.SETUP{
-				text-align: center;
-			}
-		</STYLE>
+		<LINK REL="stylesheet" HREF="/public/Style/main.css">
 	</HEAD>
 
 	<BODY>
@@ -36,28 +25,21 @@
 
 			<DIV CLASS="SETUP" ID="SETUP" STYLE="display: none;">
 				<DIV ID="SETUP_FIRST">
-					<H1>暗号化のセットアップ</H1>
+					<H1>ｾｷｭﾘﾃｨのｾｯﾄｱｯﾌﾟ</H1>
 					6桁のパスコードを設定してください！<BR>
 					(絶対に忘れない番号にしましょう)<BR>
-					<INPUT PLACEHOLDER="000000" ID="SETUP_INPUT" TYPE="text" onkeyup="setup_input_change();" MAXLENGTH="6"><BR>
-					<BUTTON onclick="setup_next();" ID="SETUP_NEXT" disabled>これで行く</BUTTON>
+					<INPUT PLACEHOLDER="000000" ID="SETUP_INPUT" TYPE="text" MAX="6" MAXLENGTH="6"><BR>
+					<BUTTON ID="SETUP_NEXT" disabled>これで行く</BUTTON>
 				</DIV>
 				<DIV ID="SETUP_CHECK" STYLE="display: none;">
 					パスコード<SPAN ID="SETUP_PASSCODE"></SPAN>で続行しますか？<BR>
 					後からパスコードを変更することは出来ません。<BR>
-					<FONT COLOR="RED">また、パスコードリセットをした場合、<BR>重要なデータなどが消失する場合があります。</FONT><BR>
-					<BUTTON onclick="setup_go();">問題ありません</BUTTON>
-				</DIV>
-				<DIV ID="SETUP_LOADING" STYLE="display: none;">
-					お待ち下さい。
+					<FONT COLOR="RED">また、パスコードを忘れた場合、<BR>重要なデータなどが消失します(断定)</FONT><BR>
+					<BUTTON ID="SETUP_DONE">問題ありません</BUTTON>
 				</DIV>
 			</DIV>
 		</DIV>
 	</BODY>
 
-	<SCRIPT SRC="https://cdn.rumia.me/LIB/COOKIE.js?V=LATEST"></SCRIPT>
-	<SCRIPT SRC="https://cdn.rumia.me/LIB/Login.js?V=LATEST"></SCRIPT>
-
-	<SCRIPT SRC="/Script/Setup.js"></SCRIPT>
-	<SCRIPT SRC="/Script/Main.js" defer></SCRIPT>
+	<SCRIPT TYPE="module" SRC="src/main.ts" defer></SCRIPT>
 </HTML>
