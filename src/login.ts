@@ -1,5 +1,9 @@
 let token = "none";
-let self_user:Object;
+let self_user:User;
+
+export type User = {
+	
+};
 
 export async function login(callback_url:string) {
 	read_cookie();

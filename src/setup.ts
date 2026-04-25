@@ -42,27 +42,10 @@ export function setup_start() {
 		mel.setup.check.parent.style.display = "none";
 		mel.loading.style.display = "block";
 
-		//登録処理
-		let prepare_ajax = await fetch("/api/Setting", {
-			method: "POST",
-			headers: {
-				"Accept": "application/json; charset=UTF-8",
-				"Content-Type": "application/json; charset=UTF-8",
-				"TOKEN": get_token()
-			},
-			body: JSON.stringify({})
-		});
-		const prepare_result = await prepare_ajax.json();
-		if (!prepare_result.STATUS) throw new Error("エラー");
-
-		const id = prepare_result.ID;
-		const random_data = Uint8Array.from(atob(prepare_result.RANDOM), c => c.charCodeAt(0));
-
 		const passcode = mel.setup.first.input.value;
 		const key = await get_key(passcode, gen_salt());
-		const encrypted = await encrypt(key.key, random_data);
 
-		//本登録
+		//登録
 		let regist_ajax = await fetch("/api/Setting", {
 			method: "POST",
 			headers: {
@@ -71,12 +54,8 @@ export function setup_start() {
 				"TOKEN": get_token()
 			},
 			body: JSON.stringify({
-				"ID": id,
 				"KDF": "ARGON2ID",
-				"SALT": btoa(String.fromCharCode(...key.salt)),
-				"ENCRYPTED": btoa(String.fromCharCode(...encrypted.data)),
-				"IV": btoa(String.fromCharCode(...encrypted.iv)),
-				"TAG": btoa(String.fromCharCode(...encrypted.tag))
+				"SALT": btoa(String.fromCharCode(...key.salt))
 			})
 		});
 		const regist_result = await regist_ajax.json();
