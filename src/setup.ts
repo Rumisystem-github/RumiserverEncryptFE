@@ -1,5 +1,5 @@
 import { encrypt, gen_salt, get_key } from "./key";
-import { get_token } from "./login";
+import { get_self, get_token } from "./login";
 import { mel } from "./main";
 
 export function setup_start() {
@@ -43,7 +43,8 @@ export function setup_start() {
 		mel.loading.style.display = "block";
 
 		const passcode = mel.setup.first.input.value;
-		const key = await get_key(passcode, gen_salt());
+		const passphrase = `${passcode}${get_self().ID}${Math.floor(get_self().REGIST_DATE.getTime() / 1000)}`;
+		const key = await get_key(passphrase, gen_salt());
 
 		//登録
 		let regist_ajax = await fetch("/api/Setting", {
