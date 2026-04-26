@@ -28,8 +28,8 @@ export function gen_salt() {
 	return crypto.getRandomValues(new Uint8Array(KDF_CONFIG.salt_length));
 }
 
-export async function get_key(passcode: string, salt: Uint8Array): Promise<Key> {
-	const passphrase = `${passcode}`;
+export async function get_key(passcode: string, user_id: string, regist_date: Date, salt: Uint8Array): Promise<Key> {
+	const passphrase = `${passcode}${user_id}${Math.floor(regist_date.getTime() / 1000)}`;
 
 	const key = await argon2id({
 		password: passphrase,
