@@ -74,6 +74,11 @@ export function setup_start() {
 		const checkdata_result = await checkdata_ajax.json();
 		if (!checkdata_result.STATUS) throw new Error("エラー");
 
-		window.location.reload();
+		const param = new URLSearchParams(window.location.search);
+		if (param.get("R") == null) {
+			window.location.reload();
+		} else {
+			window.location.href = param.get("R")!;
+		}
 	}
 }
