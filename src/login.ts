@@ -38,7 +38,7 @@ export function get_self(): User {
 
 function read_cookie() {
 	const cookie = document.cookie;
-	for (const item of cookie.split(";")) {
+	for (const item of cookie.split("; ")) {
 		const key = item.split("=")[0];
 		const value = item.split("=")[1];
 		if (key === "SESSION") {
